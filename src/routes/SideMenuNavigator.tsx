@@ -9,6 +9,7 @@ import {
   import {globalColors} from '../theme/theme';
   import {View, Text, useWindowDimensions} from 'react-native'; // Cambiado a react-native
 import { BottonTapNavigator } from './BottonTapNavigator';
+import { IonIcon } from '../components/shared/IonIcon';
 
   
   const Drawer = createDrawerNavigator();
@@ -39,8 +40,13 @@ import { BottonTapNavigator } from './BottonTapNavigator';
         }}
         >
        {/* <Drawer.Screen name="StackNavigator" component={StackNavigator} />*/}
-        <Drawer.Screen name="Stack"   component={BottonTapNavigator}/>
-        <Drawer.Screen name="Profile" component={ProfileScreen}/>
+        <Drawer.Screen 
+        options={{ drawerIcon: ({ color }) => (<IonIcon name='bonfire-outline' color={color} />) }}
+        
+         name="Stack" component={BottonTapNavigator} />
+        <Drawer.Screen 
+        name="Profile"
+         component={ProfileScreen}/>
        
 
 

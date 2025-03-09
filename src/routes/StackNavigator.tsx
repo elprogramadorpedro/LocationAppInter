@@ -3,6 +3,8 @@ import { HomeScreen } from '../screens/Home/HomeScreen';
 import { ProductsScreen } from '../screens/Products/ProductsScreen';
 import { SettingScreen } from '../screens/settings/SettingScreen';
 import { ProductScreen } from '../screens/Products/ProductScreen';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect } from 'react';
 
 
 //typado
@@ -21,6 +23,16 @@ const Stack = createStackNavigator<RootStackParams>();
 
 
 export const StackNavigator =()=> {
+
+  const navigator = useNavigation();
+
+  useEffect(()=>{
+    navigator.setOptions({
+      headerShown:false
+    })
+  },[])	
+
+
   return (
     <Stack.Navigator screenOptions={{
       headerShown:true,
