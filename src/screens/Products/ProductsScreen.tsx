@@ -15,6 +15,7 @@ const products = [
  {id:4, name:'Producto 4'},
  {id:5, name:'Producto 5'},
  {id:6, name:'Producto 6'},
+ {id:7, name:'Producto 7'},
 ];
 
 
