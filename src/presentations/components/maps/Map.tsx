@@ -3,7 +3,7 @@ import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import {StyleSheet} from 'react-native';
 import {Location} from '../../../infrastructure/interfaces/locations';
 import {FAB} from '../ui/FAB';
-import {useEffect, useRef} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useLocationStore} from '../../store/location/useLocationStore';
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
   const mapRef = useRef<MapView>(null);
   const cameraLocation = useRef<Location>(initialLocation);
-
+  const [isFollowingUser, setIsFollowingUser]=useState(true);
   const {getLocation, lastKnownLocation, watchLocation, clearWachLocation} = useLocationStore();
 
   const moveCameraToLocation = (location: Location) => {
@@ -42,11 +42,11 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
   },[])
 
   useEffect(()=>{
-    if(lastKnownLocation){
+    if(lastKnownLocation && isFollowingUser){
       moveCameraToLocation(lastKnownLocation)
     }
  
-  },[lastKnownLocation])
+  },[lastKnownLocation, isFollowingUser])
 
 
 
@@ -62,6 +62,8 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
         showsUserLocation={showsUserLocation}
         provider={Platform.OS === 'ios' ? undefined : PROVIDER_GOOGLE} // remove if not using Google Maps
         style={styles.map}
+        onTouchStart={()=> setIsFollowingUser(false)}
+        
         region={{
           latitude: cameraLocation.current.latitude,
           longitude: cameraLocation.current.longitude,
@@ -80,6 +82,21 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
         />
       </MapView>
 
+
+  <FAB
+        iconName={isFollowingUser? 'walk-outline': 'accessibility-outline'}
+        onPress={()=>setIsFollowingUser(!isFollowingUser)}
+        style={{
+          bottom: 80,
+          right: 20,
+        }}
+/>
+
+
+
+
+
+
       <FAB
         iconName="compass-outline"
         onPress={moveToCurrentLocation}
@@ -87,6 +104,10 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
           bottom: 20,
           right: 20,
         }}
+
+
+
+
       />
     </>
   );
