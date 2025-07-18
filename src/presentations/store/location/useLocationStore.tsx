@@ -6,7 +6,7 @@ import { getCurrentLocation, clearWachLocation, watchCurrentLocation } from '../
 
 interface LocationState{
     lastKnownLocation:Location|null;
-    userLocations:Location[];
+    userLocationsList:Location[];
     wachId: number | null;
     
 
@@ -19,7 +19,7 @@ interface LocationState{
 export const useLocationStore = create<LocationState>()((set, get)=>({
 
 lastKnownLocation: null,
-userLocations:[],
+userLocationsList:[],
 wachId: null,
 
 getLocation: async () => {
@@ -39,7 +39,7 @@ watchLocation:()=>{
 const id = watchCurrentLocation((location)=>{
     set({
         lastKnownLocation:location,
-        userLocations: [...get().userLocations, location]
+        userLocationsList: [...get().userLocationsList, location]
     })
 
 });
