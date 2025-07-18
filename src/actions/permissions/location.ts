@@ -40,7 +40,7 @@ export const requestLocationPermission = async ():Promise<PermissionStatus> => {
 
 
 
-//revisarr permisis de ubicacion 
+//revisar permisos de ubicacion 
 
 
 export const checkLocationPermission = async (): Promise<PermissionStatus> => {
