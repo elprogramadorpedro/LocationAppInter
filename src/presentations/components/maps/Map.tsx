@@ -3,7 +3,7 @@ import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import {StyleSheet} from 'react-native';
 import {Location} from '../../../infrastructure/interfaces/locations';
 import {FAB} from '../ui/FAB';
-import {useRef} from 'react';
+import {useEffect, useRef} from 'react';
 import {useLocationStore} from '../../store/location/useLocationStore';
 
 interface Props {
@@ -15,7 +15,7 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
   const mapRef = useRef<MapView>(null);
   const cameraLocation = useRef<Location>(initialLocation);
 
-  const {getLocation, lastKnownLocation} = useLocationStore();
+  const {getLocation, lastKnownLocation, watchLocation, clearWachLocation} = useLocationStore();
 
   const moveCameraToLocation = (location: Location) => {
     if (!mapRef.current) return;
@@ -33,6 +33,26 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
     moveCameraToLocation(location);
   };
 
+
+  useEffect(()=>{
+ watchLocation();
+    return()=>{
+        clearWachLocation();
+    }
+  },[])
+
+  useEffect(()=>{
+    if(lastKnownLocation){
+      moveCameraToLocation(lastKnownLocation)
+    }
+ 
+  },[lastKnownLocation])
+
+
+
+
+
+
   return (
     <>
       <MapView
@@ -48,6 +68,8 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
           latitudeDelta: 0.015,
           longitudeDelta: 0.0121,
         }}>
+
+          
         <Marker
           coordinate={{
             latitude: 10.48801,
