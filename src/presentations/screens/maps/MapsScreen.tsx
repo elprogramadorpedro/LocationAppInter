@@ -23,7 +23,7 @@ export const MapsScreen = () => {
   return (
    
     <View style={styles.container}>
-        <Map initialLocation={lastKnownLocation} showsUserLocation={false}/>   
+        <Map initialLocation={lastKnownLocation} showsUserLocation={true}/>   
          
      </View>
 

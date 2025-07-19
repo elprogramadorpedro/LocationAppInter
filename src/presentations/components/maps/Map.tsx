@@ -6,9 +6,6 @@ import {FAB} from '../ui/FAB';
 import {useEffect, useRef, useState} from 'react';
 import {useLocationStore} from '../../store/location/useLocationStore';
 
-
-
-
 interface Props {
   showsUserLocation: boolean;
   initialLocation: Location;
@@ -17,12 +14,16 @@ interface Props {
 export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
   const mapRef = useRef<MapView>(null);
   const cameraLocation = useRef<Location>(initialLocation);
-  const [isFollowingUser, setIsFollowingUser]=useState(true);
-  const [isShowingPolyline, setIsShowingPolyline]= useState(true);
-  
-  
-  
-  const {getLocation, lastKnownLocation, watchLocation, clearWachLocation, userLocationsList} = useLocationStore();
+  const [isFollowingUser, setIsFollowingUser] = useState(true);
+  const [isShowingPolyline, setIsShowingPolyline] = useState(true);
+
+  const {
+    getLocation,
+    lastKnownLocation,
+    watchLocation,
+    clearWachLocation,
+    userLocationsList,
+  } = useLocationStore();
 
   const moveCameraToLocation = (location: Location) => {
     if (!mapRef.current) return;
@@ -31,7 +32,7 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
   };
 
   const moveToCurrentLocation = async () => {
-    if(!lastKnownLocation){
+    if (!lastKnownLocation) {
       moveCameraToLocation(initialLocation);
     }
 
@@ -40,56 +41,44 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
     moveCameraToLocation(location);
   };
 
+  useEffect(() => {
+    watchLocation();
+    return () => {
+      clearWachLocation();
+    };
+  }, []);
 
-  useEffect(()=>{
- watchLocation();
-    return()=>{
-        clearWachLocation();
+  useEffect(() => {
+    if (lastKnownLocation && isFollowingUser) {
+      moveCameraToLocation(lastKnownLocation);
     }
-  },[])
-
-  useEffect(()=>{
-    if(lastKnownLocation && isFollowingUser){
-      moveCameraToLocation(lastKnownLocation)
-    }
- 
-  },[lastKnownLocation, isFollowingUser])
-
-
-
-
-
+  }, [lastKnownLocation, isFollowingUser]);
 
   return (
     <>
       <MapView
+      
         ref={map => {
           mapRef.current = map!;
         }}
         showsUserLocation={showsUserLocation}
         provider={Platform.OS === 'ios' ? undefined : PROVIDER_GOOGLE} // remove if not using Google Maps
         style={styles.map}
-        onTouchStart={()=> setIsFollowingUser(false)}
-        
-        region={{
+        onTouchStart={() => setIsFollowingUser(false)}
+        initialRegion={{
           latitude: cameraLocation.current.latitude,
           longitude: cameraLocation.current.longitude,
           latitudeDelta: 0.015,
           longitudeDelta: 0.0121,
         }}>
+        {isShowingPolyline && (
+          <Polyline
+            coordinates={userLocationsList}
+            strokeColor="black"
+            strokeWidth={5}
+          />
+        )}
 
-          {isShowingPolyline &&(
-             <Polyline 
-        coordinates={userLocationsList}
-        strokeColor='black'
-        strokeWidth={5}
-        />
-          )}
-
-
-       
-
-          
         <Marker
           coordinate={{
             latitude: 10.48801,
@@ -100,32 +89,23 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
         />
       </MapView>
 
-
- <FAB
-        iconName={isShowingPolyline? 'eye-outline':'eye-off-outline'}
-        onPress={()=>setIsShowingPolyline(!isShowingPolyline)}
+      <FAB
+        iconName={isShowingPolyline ? 'eye-outline' : 'eye-off-outline'}
+        onPress={() => setIsShowingPolyline(!isShowingPolyline)}
         style={{
           bottom: 140,
           right: 20,
         }}
-/>
+      />
 
-
-
-
-  <FAB
-        iconName={isFollowingUser? 'walk-outline': 'accessibility-outline'}
-        onPress={()=>setIsFollowingUser(!isFollowingUser)}
+      <FAB
+        iconName={isFollowingUser ? 'walk-outline' : 'accessibility-outline'}
+        onPress={() => setIsFollowingUser(!isFollowingUser)}
         style={{
           bottom: 80,
           right: 20,
         }}
-/>
-
-
-
-
-
+      />
 
       <FAB
         iconName="compass-outline"
@@ -134,10 +114,6 @@ export const Map = ({showsUserLocation = true, initialLocation}: Props) => {
           bottom: 20,
           right: 20,
         }}
-
-
-
-
       />
     </>
   );
