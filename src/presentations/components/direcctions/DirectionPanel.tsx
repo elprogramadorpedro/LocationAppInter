@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { fetchPlaceSuggestions } from '../../../infrastructure/api/places';
 
 const transportModes = [
   { key: 'car', label: 'Carro' },
@@ -9,20 +10,95 @@ const transportModes = [
 ];
 
 export const DirectionPanel = ({
+   origin,
+  destination,
+  mode,
+  setOrigin,
+  setDestination,
+  GOOGLE_MAPS_API_KEY,
+  setMode,
   onClose,
   onSwap,
   onSubmit,
+
+  
 }: {
+   origin: string;
+  destination: string;
+  mode: string;
+  setOrigin: (value: string) => void;
+  setDestination: (value: string) => void;
+  setMode: (value: string) => void;
   onClose: () => void;
   onSwap: () => void;
   onSubmit: (origin: string, destination: string, mode: string) => void;
+  GOOGLE_MAPS_API_KEY: string;
+
 }) => {
-  const [origin, setOrigin] = useState('');
-  const [destination, setDestination] = useState('');
-  const [mode, setMode] = useState('car');
+  //const [origin, setOrigin] = useState('');
+  //const [destination, setDestination] = useState('');
+  //const [mode, setMode] = useState('car');
+const [originSuggestions, setOriginSuggestions] = useState<{ description: string; place_id: string }[]>([]);
+const [destinationSuggestions, setDestinationSuggestions] = useState<{ description: string; place_id: string }[]>([]);
+
+const handleOriginChange = async (text: string) => {
+  setOrigin(text);
+  const suggestions = await fetchPlaceSuggestions(text, GOOGLE_MAPS_API_KEY);
+  setOriginSuggestions(suggestions);
+};
+
+const handleOriginSelect = (description: string) => {
+  setOrigin(description);
+  setOriginSuggestions([]); // <-- Limpia las sugerencias
+};
+
+const handleDestinationChange = async (text: string) => {
+  setDestination(text);
+  const suggestions = await fetchPlaceSuggestions(text, GOOGLE_MAPS_API_KEY);
+  setDestinationSuggestions(suggestions);
+};
+
+const handleDestinationSelect = (description: string) => {
+  setDestination(description);
+  setDestinationSuggestions([]); // <-- Limpia las sugerencias
+};
+
+
 
   return (
+
+
+
+
+
+
     <View style={styles.panel}>
+<TextInput
+  style={styles.input}
+  placeholder="Origen"
+  value={origin}
+  onChangeText={handleOriginChange}
+/>
+{originSuggestions.map(s => (
+  <TouchableOpacity key={s.place_id} onPress={() => handleOriginSelect(s.description)}>
+    <Text style={styles.suggestion}>{s.description}</Text>
+  </TouchableOpacity>
+))}
+
+  <TextInput
+     style={styles.input}
+  placeholder="Destino"
+  value={destination}
+  onChangeText={handleDestinationChange}
+  />
+  {destinationSuggestions.map(s => (
+     <TouchableOpacity key={s.place_id} onPress={() => handleDestinationSelect(s.description)}>
+    <Text style={styles.suggestion}>{s.description}</Text>
+  </TouchableOpacity>
+  ))}
+
+
+
       <View style={styles.header}>
         <Text style={styles.title}>Direcciones</Text>
         <TouchableOpacity onPress={onClose}>
@@ -73,6 +149,15 @@ export const DirectionPanel = ({
 };
 
 const styles = StyleSheet.create({
+
+
+suggestion: {
+  padding: 8,
+  backgroundColor: '#f0f0f0',
+  borderBottomWidth: 1,
+  borderColor: '#ddd',
+},
+
   panel: {
     position: 'absolute',
     top: 40,
